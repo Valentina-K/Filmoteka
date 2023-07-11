@@ -12,4 +12,8 @@ function makeupModal(markup, elem) {
   elem.insertAdjacentHTML('beforeend', markup);
 }
 
-export default { clearModal, creatModalItem, makeupModal };
+export default {
+  clearModal,
+  creatModalItem,
+  makeupModal,
+};

@@ -2,6 +2,7 @@ import { pagination } from './js/pagination';
 import renderApi from './js/gallery';
 import renderModal from './js/modal';
 import API from './js/api';
+import storage from './js/storage';
 
 const instanceAPI = new API();
 
@@ -17,6 +18,12 @@ const refs = {
   closeModalBtn: document.querySelector('[data-modal-close]'),
   modal: document.querySelector('[data-modal]'),
 };
+
+let movie;
+const KEY_QUEUE = 'queue';
+const KEY_WATCHED = 'watched';
+const queueArr = storage.load(KEY_QUEUE) ?? [];
+const watchArr = storage.load(KEY_WATCHED) ?? [];
 window.addEventListener('load', getTrend);
 window.addEventListener('keydown', onEscKeyPress);
 
@@ -32,6 +39,23 @@ refs.searchForm.addEventListener('submit', onSearch);
 refs.searchInput.addEventListener('focus', onFocus);
 refs.galleryItem.addEventListener('click', onClick);
 refs.closeModalBtn.addEventListener('click', onClose);
+refs.modalElem.addEventListener('click', onAddTo);
+
+function onAddTo(evt) {
+  const inStorage =
+    queueArr.some(({ id }) => id === movie.id) ||
+    watchArr.some(({ id }) => id === movie.id);
+  evt.target.setAttribute('disabled', 'disabled');
+  if (inStorage) return;
+  if (evt.target.classList.contains('queue')) {
+    queueArr.push(movie);
+    storage.save(KEY_QUEUE, queueArr);
+  }
+  if (evt.target.classList.contains('watched')) {
+    watchArr.push(movie);
+    storage.save(KEY_WATCHED, watchArr);
+  }
+}
 
 function onClose() {
   toggleModal();
@@ -61,9 +85,11 @@ async function onClick(evt) {
           ? instanceAPI.getGenres(el.id)
           : instanceAPI.getGenres(el.id) + ',')
   );
+  movie = response;
   renderModal.clearModal(refs.modalElem);
   const markup = renderModal.creatModalItem(response);
   renderModal.makeupModal(markup, refs.modalElem);
+
   toggleModal();
 }
 

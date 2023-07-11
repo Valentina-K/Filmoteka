@@ -167,7 +167,20 @@
   line-height: 16px;
   text-transform: uppercase;
   text-align: center;
-  border: none;
+  /* border: none; */
+  border: 1px solid #000;
+  background-color: inherit;
+
+  &:hover,
+  &:focus {
+    color: #ffffff;
+    background: #ff6b01;
+  }
+
+  &:disabled {
+    background-color: lightgray;
+    color: #8c8c8c;
+  }
 
   @media screen and (min-width: 768px) {
     width: 126px;
@@ -179,10 +192,4 @@
 }
 .watched {
   margin-right: 20px;
-  color: #ffffff;
-  background: #ff6b01;
-}
-.queue {
-  border: 1px solid #000;
-  background-color: inherit;
 }
