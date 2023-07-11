@@ -42,18 +42,22 @@ refs.closeModalBtn.addEventListener('click', onClose);
 refs.modalElem.addEventListener('click', onAddTo);
 
 function onAddTo(evt) {
-  const inStorage =
-    queueArr.some(({ id }) => id === movie.id) ||
-    watchArr.some(({ id }) => id === movie.id);
-  evt.target.setAttribute('disabled', 'disabled');
-  if (inStorage) return;
+  const btns = evt.target.parentElement;
+  const btn = btns.childNodes;
+
   if (evt.target.classList.contains('queue')) {
     queueArr.push(movie);
     storage.save(KEY_QUEUE, queueArr);
+    for (var i = 0; i < btn.length; ++i) {
+      if (btn[i].type === 'button') btn[i].setAttribute('disabled', 'disabled');
+    }
   }
   if (evt.target.classList.contains('watched')) {
     watchArr.push(movie);
     storage.save(KEY_WATCHED, watchArr);
+    for (var i = 0; i < btn.length; ++i) {
+      if (btn[i].type === 'button') btn[i].setAttribute('disabled', 'disabled');
+    }
   }
 }
 
@@ -89,6 +93,19 @@ async function onClick(evt) {
   renderModal.clearModal(refs.modalElem);
   const markup = renderModal.creatModalItem(response);
   renderModal.makeupModal(markup, refs.modalElem);
+  const inStorage =
+    queueArr.some(({ id }) => id === movie.id) ||
+    watchArr.some(({ id }) => id === movie.id);
+  if (inStorage) {
+    refs.modalElem.childNodes[2].children[2].children[0].setAttribute(
+      'disabled',
+      'disabled'
+    );
+    refs.modalElem.childNodes[2].children[2].children[1].setAttribute(
+      'disabled',
+      'disabled'
+    );
+  }
 
   toggleModal();
 }
