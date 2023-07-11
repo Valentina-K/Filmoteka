@@ -38,7 +38,6 @@ function onClose() {
 }
 
 function onEscKeyPress(even) {
-  console.log('from esc');
   if (even.code === 'Escape') {
     if (!refs.modal.classList.contains('is-hidden')) {
       toggleModal();

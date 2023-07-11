@@ -1,0 +1,14 @@
+.empty {
+  background-image: url('../images/empty-bacground.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  line-height: 100vh;
+  width: 100%;
+  height: 100vh;
+}
+
+.nothing-message {
+  text-transform: uppercase;
+  text-align: center;
+  color: white;
+}
