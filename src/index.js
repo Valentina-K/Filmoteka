@@ -106,33 +106,8 @@ async function onClick(evt) {
           : instanceAPI.getGenres(el.id) + ',')
   );
   movie = response;
-  renderModal.clearModal(refs.modalElem);
-  const markup = renderModal.creatModalItem(response);
-  renderModal.markupModal(markup, refs.modalElem);
-
-  if (queueArr.some(({ id }) => id === movie.id)) {
-    console.log('from queue');
-    refs.modalElem.childNodes[2].children[2].children[1].classList.add(
-      'remove'
-    );
-    refs.modalElem.childNodes[2].children[2].children[1].textContent =
-      'Remove from queue';
-    refs.modalElem.childNodes[2].children[2].children[0].setAttribute(
-      'disabled',
-      'disabled'
-    );
-  }
-  if (watchArr.some(({ id }) => id === movie.id)) {
-    refs.modalElem.childNodes[2].children[2].children[0].classList.add(
-      'remove'
-    );
-    refs.modalElem.childNodes[2].children[2].children[0].textContent =
-      'Remove from watched';
-    refs.modalElem.childNodes[2].children[2].children[1].setAttribute(
-      'disabled',
-      'disabled'
-    );
-  }
+  renderModal.prepareModalContent(refs.modalElem, movie);
+  renderModal.renderModalBtns(queueArr, watchArr, refs.modalElem, movie.id);
   toggleModal();
 }
 

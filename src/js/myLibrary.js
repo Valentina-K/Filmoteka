@@ -1,5 +1,6 @@
 import storage from './storage';
 import renderApi from './gallery';
+import renderModal from './modal';
 const KEY_QUEUE = 'queue';
 const KEY_WATCHED = 'watched';
 const queueArr = storage.load(KEY_QUEUE) ?? [];
@@ -11,8 +12,17 @@ const refs = {
   galleryItem: document.querySelector('.gallery'),
   filter: document.querySelector('.filter-thumb'),
   preloaderElem: document.querySelector('.preloader'),
+  modal: document.querySelector('[data-modal]'),
+  modalElem: document.querySelector('.modal-content'),
+  closeModalBtn: document.querySelector('[data-modal-close]'),
 };
+
+let movie;
+let isWatch = true;
 refs.gallery.style.overflowY = 'auto';
+refs.closeModalBtn.addEventListener('click', onClose);
+refs.galleryItem.addEventListener('click', onChooseMovie);
+refs.modalElem.addEventListener('click', onAddOrRemove);
 const filterBtns = refs.filter.querySelectorAll('.filter');
 for (const radio of filterBtns) {
   radio.addEventListener('change', onChangeFilter);
@@ -40,6 +50,7 @@ function onChangeFilter(evt) {
   if (Number(evt.target.value) === 1) {
     if (watchArr.length) {
       //render gallery
+      isWatch = true;
       refs.empty.style.display = 'none';
       renderApi.clearContent(refs.gallery);
       refs.preloaderElem.classList.toggle('is-hidden');
@@ -50,6 +61,7 @@ function onChangeFilter(evt) {
   } else {
     if (queueArr.length) {
       //render gallery
+      isWatch = false;
       refs.empty.style.display = 'none';
       renderApi.clearContent(refs.gallery);
       refs.preloaderElem.classList.toggle('is-hidden');
@@ -58,4 +70,72 @@ function onChangeFilter(evt) {
       refs.preloaderElem.classList.toggle('is-hidden');
     }
   }
+}
+
+function onClose() {
+  toggleModal();
+  prepareGallery();
+  console.log('isWatch = ', isWatch);
+  if (isWatch) renderContent(watchArr);
+  else renderContent(queueArr);
+}
+
+function onChooseMovie(evt) {
+  movie =
+    queueArr.find(item => item.id === Number(evt.target.id)) ??
+    watchArr.find(item => item.id === Number(evt.target.id));
+  renderModal.prepareModalContent(refs.modalElem, movie);
+  renderModal.renderModalBtns(
+    queueArr,
+    watchArr,
+    refs.modalElem,
+    Number(evt.target.id)
+  );
+  toggleModal();
+}
+
+function toggleModal() {
+  refs.modal.classList.toggle('is-hidden');
+}
+
+function onAddOrRemove(evt) {
+  const btns = evt.target.parentElement;
+  const btn = btns.children;
+  if (evt.target.classList.contains('queue')) {
+    if (evt.target.classList.contains('remove')) {
+      const index = queueArr.indexOf(movie);
+      queueArr.splice(index, 1);
+      storage.save(KEY_QUEUE, queueArr);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Add to queue';
+      btn[0].removeAttribute('disabled');
+    } else {
+      queueArr.push(movie);
+      storage.save(KEY_QUEUE, queueArr);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Remove from queue';
+      btn[0].setAttribute('disabled', 'disabled');
+    }
+  }
+  if (evt.target.classList.contains('watched')) {
+    if (evt.target.classList.contains('remove')) {
+      const index = watchArr.indexOf(movie);
+      watchArr.splice(index, 1);
+      storage.save(KEY_WATCHED, watchArr);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Add to watched';
+      btn[1].removeAttribute('disabled');
+    } else {
+      watchArr.push(movie);
+      storage.save(KEY_WATCHED, watchArr);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Remove from watched';
+      btn[1].setAttribute('disabled', 'disabled');
+    }
+  }
+}
+
+function prepareGallery() {
+  renderApi.clearContent(refs.gallery);
+  refs.preloaderElem.classList.toggle('is-hidden');
 }
