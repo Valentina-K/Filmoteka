@@ -39,30 +39,46 @@ refs.searchForm.addEventListener('submit', onSearch);
 refs.searchInput.addEventListener('focus', onFocus);
 refs.galleryItem.addEventListener('click', onClick);
 refs.closeModalBtn.addEventListener('click', onClose);
-refs.modalElem.addEventListener('click', onAddTo);
+refs.modalElem.addEventListener('click', onAddOrRemove);
 
-function onAddTo(evt) {
+function onAddOrRemove(evt) {
   const btns = evt.target.parentElement;
-  const btn = btns.childNodes;
-
+  const btn = btns.children;
   if (evt.target.classList.contains('queue')) {
-    queueArr.push(movie);
-    storage.save(KEY_QUEUE, queueArr);
-    for (var i = 0; i < btn.length; ++i) {
-      if (btn[i].type === 'button') btn[i].setAttribute('disabled', 'disabled');
+    if (evt.target.classList.contains('remove')) {
+      const removeFromQueue = queueArr.filter(item => item.id !== movie.id);
+      storage.save(KEY_QUEUE, removeFromQueue);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Add to queue';
+      btn[0].removeAttribute('disabled');
+    } else {
+      queueArr.push(movie);
+      storage.save(KEY_QUEUE, queueArr);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Remove from queue';
+      btn[0].setAttribute('disabled', 'disabled');
     }
   }
   if (evt.target.classList.contains('watched')) {
-    watchArr.push(movie);
-    storage.save(KEY_WATCHED, watchArr);
-    for (var i = 0; i < btn.length; ++i) {
-      if (btn[i].type === 'button') btn[i].setAttribute('disabled', 'disabled');
+    if (evt.target.classList.contains('remove')) {
+      const removeFromWatch = watchArr.filter(item => item.id !== movie.id);
+      storage.save(KEY_WATCHED, removeFromWatch);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Add to watched';
+      btn[1].removeAttribute('disabled');
+    } else {
+      queueArr.push(movie);
+      storage.save(KEY_WATCHED, watchArr);
+      evt.target.classList.toggle('remove');
+      evt.target.textContent = 'Remove from watched';
+      btn[1].setAttribute('disabled', 'disabled');
     }
   }
 }
 
 function onClose() {
   toggleModal();
+  //renderModal(); - only from my library
 }
 
 function onEscKeyPress(even) {
@@ -93,20 +109,30 @@ async function onClick(evt) {
   renderModal.clearModal(refs.modalElem);
   const markup = renderModal.creatModalItem(response);
   renderModal.makeupModal(markup, refs.modalElem);
-  const inStorage =
-    queueArr.some(({ id }) => id === movie.id) ||
-    watchArr.some(({ id }) => id === movie.id);
-  if (inStorage) {
+
+  if (queueArr.some(({ id }) => id === movie.id)) {
+    console.log('from queue');
+    refs.modalElem.childNodes[2].children[2].children[1].classList.add(
+      'remove'
+    );
+    refs.modalElem.childNodes[2].children[2].children[1].textContent =
+      'Remove from queue';
     refs.modalElem.childNodes[2].children[2].children[0].setAttribute(
       'disabled',
       'disabled'
     );
+  }
+  if (watchArr.some(({ id }) => id === movie.id)) {
+    refs.modalElem.childNodes[2].children[2].children[0].classList.add(
+      'remove'
+    );
+    refs.modalElem.childNodes[2].children[2].children[0].textContent =
+      'Remove from watched';
     refs.modalElem.childNodes[2].children[2].children[1].setAttribute(
       'disabled',
       'disabled'
     );
   }
-
   toggleModal();
 }
 
