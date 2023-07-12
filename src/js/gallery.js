@@ -9,8 +9,8 @@ function creatGalleryItems(items) {
   return markup;
 }
 
-function makeupContent(markup, elem) {
+function markupContent(markup, elem) {
   elem.insertAdjacentHTML('beforeend', markup);
 }
 
-export default { clearContent, creatGalleryItems, makeupContent };
+export default { clearContent, creatGalleryItems, markupContent };

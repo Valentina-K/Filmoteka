@@ -8,12 +8,12 @@ function creatModalItem(items) {
   return markup;
 }
 
-function makeupModal(markup, elem) {
+function markupModal(markup, elem) {
   elem.insertAdjacentHTML('beforeend', markup);
 }
 
 export default {
   clearModal,
   creatModalItem,
-  makeupModal,
+  markupModal,
 };

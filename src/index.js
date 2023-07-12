@@ -67,7 +67,7 @@ function onAddOrRemove(evt) {
       evt.target.textContent = 'Add to watched';
       btn[1].removeAttribute('disabled');
     } else {
-      queueArr.push(movie);
+      watchArr.push(movie);
       storage.save(KEY_WATCHED, watchArr);
       evt.target.classList.toggle('remove');
       evt.target.textContent = 'Remove from watched';
@@ -108,7 +108,7 @@ async function onClick(evt) {
   movie = response;
   renderModal.clearModal(refs.modalElem);
   const markup = renderModal.creatModalItem(response);
-  renderModal.makeupModal(markup, refs.modalElem);
+  renderModal.markupModal(markup, refs.modalElem);
 
   if (queueArr.some(({ id }) => id === movie.id)) {
     console.log('from queue');
@@ -197,5 +197,5 @@ function parseData(data) {
 function renderContent(content) {
   refs.errorSearch.classList.add('is-hidden');
   const markup = renderApi.creatGalleryItems(content);
-  renderApi.makeupContent(markup, refs.gallery);
+  renderApi.markupContent(markup, refs.gallery);
 }
