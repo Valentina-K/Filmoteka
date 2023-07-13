@@ -23,6 +23,7 @@ refs.gallery.style.overflowY = 'auto';
 refs.closeModalBtn.addEventListener('click', onClose);
 refs.galleryItem.addEventListener('click', onChooseMovie);
 refs.modalElem.addEventListener('click', onAddOrRemove);
+window.addEventListener('keydown', onEscKeyPress);
 const filterBtns = refs.filter.querySelectorAll('.filter');
 for (const radio of filterBtns) {
   radio.addEventListener('change', onChangeFilter);
@@ -39,6 +40,14 @@ if (watchArr.length) {
 } else {
   refs.empty.classList.toggle('is-hidden');
   refs.gallery.classList.add('is-hidden');
+}
+
+function onEscKeyPress(even) {
+  if (even.code === 'Escape') {
+    if (!refs.modal.classList.contains('is-hidden')) {
+      toggleModal();
+    }
+  }
 }
 
 function renderContent(content) {
@@ -74,7 +83,7 @@ function onChangeFilter(evt) {
 
 function onClose() {
   toggleModal();
-  prepareGallery();
+  renderApi.clearContent(refs.gallery);
   console.log('isWatch = ', isWatch);
   if (isWatch) renderContent(watchArr);
   else renderContent(queueArr);
@@ -133,9 +142,4 @@ function onAddOrRemove(evt) {
       btn[1].setAttribute('disabled', 'disabled');
     }
   }
-}
-
-function prepareGallery() {
-  renderApi.clearContent(refs.gallery);
-  refs.preloaderElem.classList.toggle('is-hidden');
 }
