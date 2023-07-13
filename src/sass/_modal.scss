@@ -81,6 +81,25 @@
   }
 }
 
+.play {
+  position: fixed;
+  left: 108px;
+  top: 171px;
+  width: 64px;
+  height: 64px;
+  display: none;
+  cursor: pointer;
+  @media screen and (min-width: 768px) {
+    left: 136px;
+    top: 175px;
+  }
+
+  @media screen and (min-width: 1280px) {
+    left: 168px;
+    top: 227px;
+  }
+}
+
 .modal-description {
   margin-bottom: 20px;
 }

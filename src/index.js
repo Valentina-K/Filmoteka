@@ -3,6 +3,7 @@ import renderApi from './js/gallery';
 import renderModal from './js/modal';
 import API from './js/api';
 import storage from './js/storage';
+import modal from './js/modal';
 
 const instanceAPI = new API();
 
@@ -17,6 +18,7 @@ const refs = {
   modalElem: document.querySelector('.modal-content'),
   closeModalBtn: document.querySelector('[data-modal-close]'),
   modal: document.querySelector('[data-modal]'),
+  play: document.querySelector('.play'),
 };
 
 let movie;
@@ -94,7 +96,13 @@ function toggleModal() {
 }
 
 async function onClick(evt) {
-  //
+  const result = await instanceAPI.getMovieByIdVideo(evt.target.id);
+  const { results } = result;
+  let youtubeId;
+  if (results.length > 0) {
+    const youtube = results.find(item => item.type === 'Trailer');
+    youtubeId = youtube.id;
+  }
   const response = await instanceAPI.getMovieById(evt.target.id);
   response.vote_average = response.vote_average.toFixed(1);
   response.popularity = response.popularity.toFixed(1);
@@ -105,7 +113,11 @@ async function onClick(evt) {
           ? instanceAPI.getGenres(el.id)
           : instanceAPI.getGenres(el.id) + ',')
   );
-  movie = response;
+  movie = { ...response, youtubeId };
+  console.log(youtubeId !== undefined);
+  if (youtubeId !== 'undefined') {
+    refs.play.style.display = 'block';
+  }
   renderModal.prepareModalContent(refs.modalElem, movie);
   renderModal.renderModalBtns(queueArr, watchArr, refs.modalElem, movie.id);
   toggleModal();
