@@ -3,7 +3,6 @@ import renderApi from './js/gallery';
 import renderModal from './js/modal';
 import API from './js/api';
 import storage from './js/storage';
-import modal from './js/modal';
 
 const instanceAPI = new API();
 
@@ -42,7 +41,13 @@ refs.searchInput.addEventListener('focus', onFocus);
 refs.galleryItem.addEventListener('click', onClick);
 refs.closeModalBtn.addEventListener('click', onClose);
 refs.modalElem.addEventListener('click', onAddOrRemove);
+refs.play.addEventListener('click', onPlay);
 
+function onPlay() {
+  refs.play.style.display = 'none';
+  console.log(movie);
+  renderModal.prepareModalPreview(refs.modalElem, movie.youtubeId);
+}
 function onAddOrRemove(evt) {
   const btns = evt.target.parentElement;
   const btn = btns.children;
@@ -101,6 +106,7 @@ async function onClick(evt) {
   let youtubeId;
   if (results.length > 0) {
     const youtube = results.find(item => item.type === 'Trailer');
+    console.log(youtube);
     youtubeId = youtube.id;
   }
   const response = await instanceAPI.getMovieById(evt.target.id);
@@ -115,8 +121,10 @@ async function onClick(evt) {
   );
   movie = { ...response, youtubeId };
   console.log(youtubeId !== undefined);
-  if (youtubeId !== 'undefined') {
+  if (youtubeId !== undefined) {
     refs.play.style.display = 'block';
+  } else {
+    refs.play.style.display = 'none';
   }
   renderModal.prepareModalContent(refs.modalElem, movie);
   renderModal.renderModalBtns(queueArr, watchArr, refs.modalElem, movie.id);

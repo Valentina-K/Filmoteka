@@ -1,4 +1,5 @@
 import modalTemplate from '../templates/modalTemplate.hbs';
+import player from '../templates/player.hbs';
 function clearModal(elem) {
   elem.innerHTML = '';
 }
@@ -10,6 +11,12 @@ function creatModalItem(items) {
 
 function markupModal(markup, elem) {
   elem.insertAdjacentHTML('beforeend', markup);
+}
+
+function prepareModalPreview(modalElem, youtubeId) {
+  clearModal(modalElem);
+  const markup = player(youtubeId);
+  markupModal(markup, modalElem);
 }
 
 function prepareModalContent(modalElem, movie) {
@@ -45,4 +52,5 @@ export default {
   markupModal,
   prepareModalContent,
   renderModalBtns,
+  prepareModalPreview,
 };
