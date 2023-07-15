@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css"
     />
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.6.3/plyr.css" />
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   </head>
   <body>
     <!-- ❗️❗️❗️ Add partials like so for every page -->
@@ -25,7 +25,10 @@
       type="module"
       src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"
     ></script>
-    <script src="https://cdn.plyr.io/3.6.3/plyr.js"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script>
+      const player = new Plyr('#player');
+    </script>
     <script type="module" src="./index.js"></script>
   </body>
 </html>
