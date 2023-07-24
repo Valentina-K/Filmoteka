@@ -3,9 +3,29 @@ import renderApi from './js/gallery';
 import renderModal from './js/modal';
 import API from './js/api';
 import storage from './js/storage';
+import {
+  logout,
+  createAccount,
+  loginEmailPassword,
+  onAuthStateChanged,
+  auth,
+} from './js/auth';
+import {
+  showLoginForm,
+  btnCloseRegForm,
+  loginForm,
+  txtEmail,
+  txtPassword,
+} from './js/ui';
 
 const instanceAPI = new API();
-
+onAuthStateChanged(auth, user => {
+  if (user) {
+    refs.btnLogout.style.display = 'inline-block';
+  } else {
+    refs.btnLogout.style.display = 'none';
+  }
+});
 const refs = {
   searchForm: document.querySelector('.search-form'),
   gallery: document.querySelector('.js-gallery'),
@@ -18,6 +38,8 @@ const refs = {
   closeModalBtn: document.querySelector('[data-modal-close]'),
   modal: document.querySelector('[data-modal]'),
   play: document.querySelector('.play'),
+  btnLogout: document.querySelector('.btnLogout'),
+  myLibrary: document.querySelector('#myLibrary'),
 };
 
 let movie;
@@ -42,6 +64,36 @@ refs.galleryItem.addEventListener('click', onClick);
 refs.closeModalBtn.addEventListener('click', onClose);
 refs.modalElem.addEventListener('click', onAddOrRemove);
 refs.play.addEventListener('click', onPlay);
+refs.btnLogout.addEventListener('click', onLogout);
+refs.myLibrary.addEventListener('click', onMyLibraryClick);
+btnCloseRegForm.addEventListener('click', showLoginForm);
+loginForm.addEventListener('submit', onLoginSubmit);
+
+function onLogout() {
+  logout();
+  //refs.btnLogout.style.display = 'none';
+}
+
+function onMyLibraryClick(evt) {
+  if (!auth.currentUser) {
+    evt.preventDefault();
+    showLoginForm();
+  }
+}
+
+function onLoginSubmit(evt) {
+  evt.preventDefault();
+  const email = txtEmail.value;
+  const password = txtPassword.value;
+  if (evt.submitter.id === 'btnLogin') {
+    loginEmailPassword(email, password);
+  } else {
+    createAccount(email, password);
+  }
+  txtEmail.value = '';
+  txtPassword.value = '';
+  btnCloseRegForm.click();
+}
 
 function onPlay() {
   refs.play.style.display = 'none';
@@ -49,37 +101,41 @@ function onPlay() {
   renderModal.prepareModalPreview(refs.modalElem, movie.youtubeId);
 }
 function onAddOrRemove(evt) {
-  const btns = evt.target.parentElement;
-  const btn = btns.children;
-  if (evt.target.classList.contains('queue')) {
-    if (evt.target.classList.contains('remove')) {
-      const removeFromQueue = queueArr.filter(item => item.id !== movie.id);
-      storage.save(KEY_QUEUE, removeFromQueue);
-      evt.target.classList.toggle('remove');
-      evt.target.textContent = 'Add to queue';
-      btn[0].removeAttribute('disabled');
-    } else {
-      queueArr.push(movie);
-      storage.save(KEY_QUEUE, queueArr);
-      evt.target.classList.toggle('remove');
-      evt.target.textContent = 'Remove from queue';
-      btn[0].setAttribute('disabled', 'disabled');
+  if (auth.currentUser) {
+    const btns = evt.target.parentElement;
+    const btn = btns.children;
+    if (evt.target.classList.contains('queue')) {
+      if (evt.target.classList.contains('remove')) {
+        const removeFromQueue = queueArr.filter(item => item.id !== movie.id);
+        storage.save(KEY_QUEUE, removeFromQueue);
+        evt.target.classList.toggle('remove');
+        evt.target.textContent = 'Add to queue';
+        btn[0].removeAttribute('disabled');
+      } else {
+        queueArr.push(movie);
+        storage.save(KEY_QUEUE, queueArr);
+        evt.target.classList.toggle('remove');
+        evt.target.textContent = 'Remove from queue';
+        btn[0].setAttribute('disabled', 'disabled');
+      }
     }
-  }
-  if (evt.target.classList.contains('watched')) {
-    if (evt.target.classList.contains('remove')) {
-      const removeFromWatch = watchArr.filter(item => item.id !== movie.id);
-      storage.save(KEY_WATCHED, removeFromWatch);
-      evt.target.classList.toggle('remove');
-      evt.target.textContent = 'Add to watched';
-      btn[1].removeAttribute('disabled');
-    } else {
-      watchArr.push(movie);
-      storage.save(KEY_WATCHED, watchArr);
-      evt.target.classList.toggle('remove');
-      evt.target.textContent = 'Remove from watched';
-      btn[1].setAttribute('disabled', 'disabled');
+    if (evt.target.classList.contains('watched')) {
+      if (evt.target.classList.contains('remove')) {
+        const removeFromWatch = watchArr.filter(item => item.id !== movie.id);
+        storage.save(KEY_WATCHED, removeFromWatch);
+        evt.target.classList.toggle('remove');
+        evt.target.textContent = 'Add to watched';
+        btn[1].removeAttribute('disabled');
+      } else {
+        watchArr.push(movie);
+        storage.save(KEY_WATCHED, watchArr);
+        evt.target.classList.toggle('remove');
+        evt.target.textContent = 'Remove from watched';
+        btn[1].setAttribute('disabled', 'disabled');
+      }
     }
+  } else {
+    showLoginForm();
   }
 }
 
@@ -106,7 +162,6 @@ async function onClick(evt) {
   let youtubeId;
   if (results.length > 0) {
     const youtube = results.find(item => item.type === 'Trailer');
-    console.log(youtube);
     youtubeId = youtube.id;
   }
   const response = await instanceAPI.getMovieById(evt.target.id);
@@ -120,7 +175,6 @@ async function onClick(evt) {
           : instanceAPI.getGenres(el.id) + ',')
   );
   movie = { ...response, youtubeId };
-  console.log(youtubeId !== undefined);
   if (youtubeId !== undefined) {
     refs.play.style.display = 'block';
   } else {

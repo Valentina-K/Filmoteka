@@ -1,11 +1,25 @@
+import { auth, onAuthStateChanged, logout } from './auth';
 import storage from './storage';
 import renderApi from './gallery';
 import renderModal from './modal';
+
 const KEY_QUEUE = 'queue';
 const KEY_WATCHED = 'watched';
 const queueArr = storage.load(KEY_QUEUE) ?? [];
 const watchArr = storage.load(KEY_WATCHED) ?? [];
 
+onAuthStateChanged(auth, user => {
+  if (user) {
+    refs.btnLogout.style.display = 'inline-block';
+  } else {
+    refs.btnLogout.style.display = 'none';
+    goUrlJs('./index.html');
+  }
+});
+
+function goUrlJs(e) {
+  location.href = e;
+}
 const refs = {
   empty: document.querySelector('.empty'),
   gallery: document.querySelector('.js-gallery'),
@@ -15,6 +29,7 @@ const refs = {
   modal: document.querySelector('[data-modal]'),
   modalElem: document.querySelector('.modal-content'),
   closeModalBtn: document.querySelector('[data-modal-close]'),
+  btnLogout: document.querySelector('.btnLogout'),
 };
 
 let movie;
@@ -23,6 +38,7 @@ refs.gallery.style.overflowY = 'auto';
 refs.closeModalBtn.addEventListener('click', onClose);
 refs.galleryItem.addEventListener('click', onChooseMovie);
 refs.modalElem.addEventListener('click', onAddOrRemove);
+refs.btnLogout.addEventListener('click', onLogout);
 window.addEventListener('keydown', onEscKeyPress);
 const filterBtns = refs.filter.querySelectorAll('.filter');
 for (const radio of filterBtns) {
@@ -40,6 +56,11 @@ if (watchArr.length) {
 } else {
   refs.empty.classList.toggle('is-hidden');
   refs.gallery.classList.add('is-hidden');
+}
+
+function onLogout() {
+  logout();
+  //refs.btnLogout.style.display = 'none';
 }
 
 function onEscKeyPress(even) {

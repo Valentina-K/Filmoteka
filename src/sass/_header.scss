@@ -50,8 +50,15 @@
     border-bottom: 3px solid #ff001b;
   }
 }
-.nav-link:first-child {
+.nav-link {
   margin-right: 40px;
+}
+
+.btnLogout {
+  display: none;
+  background: inherit;
+  border: none;
+  cursor: pointer;
 }
 
 .logo-text {
