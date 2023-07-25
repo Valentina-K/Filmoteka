@@ -17,6 +17,7 @@ import {
   txtEmail,
   txtPassword,
 } from './js/ui';
+import { addMovie, deleteMovie } from './js/dbApi';
 
 const instanceAPI = new API();
 onAuthStateChanged(auth, user => {
@@ -102,6 +103,7 @@ function onPlay() {
 }
 function onAddOrRemove(evt) {
   if (auth.currentUser) {
+    movie.owner = auth.currentUser.uid;
     const btns = evt.target.parentElement;
     const btn = btns.children;
     if (evt.target.classList.contains('queue')) {
@@ -112,8 +114,11 @@ function onAddOrRemove(evt) {
         evt.target.textContent = 'Add to queue';
         btn[0].removeAttribute('disabled');
       } else {
+        movie.isQueue = true;
+        movie.isWatch = false;
         queueArr.push(movie);
         storage.save(KEY_QUEUE, queueArr);
+        addMovie(movie);
         evt.target.classList.toggle('remove');
         evt.target.textContent = 'Remove from queue';
         btn[0].setAttribute('disabled', 'disabled');
@@ -127,8 +132,11 @@ function onAddOrRemove(evt) {
         evt.target.textContent = 'Add to watched';
         btn[1].removeAttribute('disabled');
       } else {
+        movie.isWatch = true;
+        movie.isQueue = false;
         watchArr.push(movie);
         storage.save(KEY_WATCHED, watchArr);
+        addMovie(movie);
         evt.target.classList.toggle('remove');
         evt.target.textContent = 'Remove from watched';
         btn[1].setAttribute('disabled', 'disabled');

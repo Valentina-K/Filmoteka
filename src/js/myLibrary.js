@@ -2,15 +2,20 @@ import { auth, onAuthStateChanged, logout } from './auth';
 import storage from './storage';
 import renderApi from './gallery';
 import renderModal from './modal';
+import { addMovie, getWatchMovies, getQueueMovies, deleteMovie } from './dbApi';
 
 const KEY_QUEUE = 'queue';
 const KEY_WATCHED = 'watched';
 const queueArr = storage.load(KEY_QUEUE) ?? [];
 const watchArr = storage.load(KEY_WATCHED) ?? [];
+const queryQ = [];
+const queryW = [];
 
 onAuthStateChanged(auth, user => {
   if (user) {
     refs.btnLogout.style.display = 'inline-block';
+    getQueueMovies(user.uid).then(data => queryQ.push(data));
+    getWatchMovies(user.uid).then(data => queryW.push(data));
   } else {
     refs.btnLogout.style.display = 'none';
     goUrlJs('./index.html');
@@ -140,8 +145,11 @@ function onAddOrRemove(evt) {
       evt.target.textContent = 'Add to queue';
       btn[0].removeAttribute('disabled');
     } else {
+      movie.isQueue = true;
+      movie.isWatch = false;
       queueArr.push(movie);
       storage.save(KEY_QUEUE, queueArr);
+      addMovie(movie);
       evt.target.classList.toggle('remove');
       evt.target.textContent = 'Remove from queue';
       btn[0].setAttribute('disabled', 'disabled');
@@ -156,8 +164,11 @@ function onAddOrRemove(evt) {
       evt.target.textContent = 'Add to watched';
       btn[1].removeAttribute('disabled');
     } else {
+      movie.isWatch = true;
+      movie.isQueue = false;
       watchArr.push(movie);
       storage.save(KEY_WATCHED, watchArr);
+      addMovie(movie);
       evt.target.classList.toggle('remove');
       evt.target.textContent = 'Remove from watched';
       btn[1].setAttribute('disabled', 'disabled');
