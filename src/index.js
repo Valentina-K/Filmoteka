@@ -2,7 +2,7 @@ import { pagination } from './js/pagination';
 import renderApi from './js/gallery';
 import renderModal from './js/modal';
 import API from './js/api';
-import storage from './js/storage';
+//import storage from './js/storage';
 import {
   logout,
   createAccount,
@@ -17,16 +17,15 @@ import {
   txtEmail,
   txtPassword,
 } from './js/ui';
-import { addMovie, deleteMovie } from './js/dbApi';
+import {
+  addMovie,
+  deleteMovie,
+  getWatchMovies,
+  getQueueMovies,
+} from './js/dbApi';
 
 const instanceAPI = new API();
-onAuthStateChanged(auth, user => {
-  if (user) {
-    refs.btnLogout.style.display = 'inline-block';
-  } else {
-    refs.btnLogout.style.display = 'none';
-  }
-});
+
 const refs = {
   searchForm: document.querySelector('.search-form'),
   gallery: document.querySelector('.js-gallery'),
@@ -44,10 +43,12 @@ const refs = {
 };
 
 let movie;
-const KEY_QUEUE = 'queue';
+/* const KEY_QUEUE = 'queue';
 const KEY_WATCHED = 'watched';
 const queueArr = storage.load(KEY_QUEUE) ?? [];
-const watchArr = storage.load(KEY_WATCHED) ?? [];
+const watchArr = storage.load(KEY_WATCHED) ?? []; */
+let queryQ = [];
+let queryW = [];
 window.addEventListener('load', getTrend);
 window.addEventListener('keydown', onEscKeyPress);
 
@@ -70,9 +71,17 @@ refs.myLibrary.addEventListener('click', onMyLibraryClick);
 btnCloseRegForm.addEventListener('click', showLoginForm);
 loginForm.addEventListener('submit', onLoginSubmit);
 
+onAuthStateChanged(auth, user => {
+  if (user) {
+    refs.btnLogout.style.display = 'inline-block';
+    getQueueMovies(user.uid).then(data => (queryQ = data));
+    getWatchMovies(user.uid).then(data => (queryW = data));
+  } else {
+    refs.btnLogout.style.display = 'none';
+  }
+});
 function onLogout() {
   logout();
-  //refs.btnLogout.style.display = 'none';
 }
 
 function onMyLibraryClick(evt) {
@@ -98,7 +107,6 @@ function onLoginSubmit(evt) {
 
 function onPlay() {
   refs.play.style.display = 'none';
-  console.log(movie);
   renderModal.prepareModalPreview(refs.modalElem, movie.youtubeId);
 }
 function onAddOrRemove(evt) {
@@ -108,16 +116,18 @@ function onAddOrRemove(evt) {
     const btn = btns.children;
     if (evt.target.classList.contains('queue')) {
       if (evt.target.classList.contains('remove')) {
-        const removeFromQueue = queueArr.filter(item => item.id !== movie.id);
-        storage.save(KEY_QUEUE, removeFromQueue);
+        deleteMovie(movie.id);
+        const index = queryQ.indexOf(movie);
+        queryQ.splice(index, 1);
+        /* storage.save(KEY_QUEUE, removeFromQueue); */
         evt.target.classList.toggle('remove');
         evt.target.textContent = 'Add to queue';
         btn[0].removeAttribute('disabled');
       } else {
         movie.isQueue = true;
         movie.isWatch = false;
-        queueArr.push(movie);
-        storage.save(KEY_QUEUE, queueArr);
+        queryQ.push(movie);
+        /*storage.save(KEY_QUEUE, queryQ); */
         addMovie(movie);
         evt.target.classList.toggle('remove');
         evt.target.textContent = 'Remove from queue';
@@ -126,16 +136,18 @@ function onAddOrRemove(evt) {
     }
     if (evt.target.classList.contains('watched')) {
       if (evt.target.classList.contains('remove')) {
-        const removeFromWatch = watchArr.filter(item => item.id !== movie.id);
-        storage.save(KEY_WATCHED, removeFromWatch);
+        deleteMovie(movie.id);
+        const index = queryW.indexOf(movie);
+        queryW.splice(index, 1);
+        /*storage.save(KEY_WATCHED, removeFromWatch); */
         evt.target.classList.toggle('remove');
         evt.target.textContent = 'Add to watched';
         btn[1].removeAttribute('disabled');
       } else {
         movie.isWatch = true;
         movie.isQueue = false;
-        watchArr.push(movie);
-        storage.save(KEY_WATCHED, watchArr);
+        queryW.push(movie);
+        /*storage.save(KEY_WATCHED, queryW); */
         addMovie(movie);
         evt.target.classList.toggle('remove');
         evt.target.textContent = 'Remove from watched';
@@ -189,7 +201,7 @@ async function onClick(evt) {
     refs.play.style.display = 'none';
   }
   renderModal.prepareModalContent(refs.modalElem, movie);
-  renderModal.renderModalBtns(queueArr, watchArr, refs.modalElem, movie.id);
+  renderModal.renderModalBtns(queryQ, queryW, refs.modalElem, movie.id);
   toggleModal();
 }
 
