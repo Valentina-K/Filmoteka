@@ -48,4 +48,11 @@ const createAccount = async (email, password) => {
 const logout = async () => {
   await signOut(auth);
 };
-export { logout, createAccount, loginEmailPassword, onAuthStateChanged, auth };
+export {
+  logout,
+  createAccount,
+  loginEmailPassword,
+  onAuthStateChanged,
+  auth,
+  app,
+};
