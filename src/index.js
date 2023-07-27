@@ -106,8 +106,11 @@ function onLoginSubmit(evt) {
 }
 
 function onPlay() {
+  const player = new Plyr('#player', {});
+  // Expose player so it can be used from the console
   refs.play.style.display = 'none';
   renderModal.prepareModalPreview(refs.modalElem, movie.youtubeId);
+  window.player = player;
 }
 function onAddOrRemove(evt) {
   if (auth.currentUser) {
@@ -182,7 +185,7 @@ async function onClick(evt) {
   let youtubeId;
   if (results.length > 0) {
     const youtube = results.find(item => item.type === 'Trailer');
-    youtubeId = youtube.id;
+    youtubeId = youtube.key;
   }
   const response = await instanceAPI.getMovieById(evt.target.id);
   response.vote_average = response.vote_average.toFixed(1);

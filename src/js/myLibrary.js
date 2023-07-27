@@ -16,6 +16,7 @@ const refs = {
   modalElem: document.querySelector('.modal-content'),
   closeModalBtn: document.querySelector('[data-modal-close]'),
   btnLogout: document.querySelector('.btnLogout'),
+  play: document.querySelector('.play'),
 };
 
 let movie;
@@ -25,6 +26,7 @@ refs.closeModalBtn.addEventListener('click', onClose);
 refs.galleryItem.addEventListener('click', onChooseMovie);
 refs.modalElem.addEventListener('click', onAddOrRemove);
 refs.btnLogout.addEventListener('click', onLogout);
+refs.play.addEventListener('click', onPlay);
 window.addEventListener('keydown', onEscKeyPress);
 const filterBtns = refs.filter.querySelectorAll('.filter');
 for (const radio of filterBtns) {
@@ -33,13 +35,13 @@ for (const radio of filterBtns) {
 
 onAuthStateChanged(auth, user => {
   if (user) {
+    renderApi.clearContent(refs.gallery);
     refs.btnLogout.style.display = 'inline-block';
     getQueueMovies(user.uid).then(data => (queryQ = data));
     getWatchMovies(user.uid).then(data => {
       if (data.length) {
         //render gallery
         refs.empty.style.display = 'none';
-        renderApi.clearContent(refs.gallery);
         refs.preloaderElem.classList.toggle('is-hidden');
         refs.gallery.classList.remove('is-hidden');
         renderContent(data);
@@ -68,18 +70,26 @@ function onEscKeyPress(even) {
   }
 }
 
+function onPlay() {
+  const player = new Plyr('#player', {});
+  // Expose player so it can be used from the console
+  refs.play.style.display = 'none';
+  renderModal.prepareModalPreview(refs.modalElem, movie.youtubeId);
+  window.player = player;
+}
+
 function renderContent(content) {
   const markup = renderApi.creatGalleryItems(content);
   renderApi.markupContent(markup, refs.gallery);
 }
 
 function onChangeFilter(evt) {
+  renderApi.clearContent(refs.gallery);
   if (Number(evt.target.value) === 1) {
     if (queryW.length) {
       //render gallery
       isWatch = true;
       refs.empty.style.display = 'none';
-      renderApi.clearContent(refs.gallery);
       refs.preloaderElem.classList.toggle('is-hidden');
       refs.gallery.classList.remove('is-hidden');
       renderContent(queryW);
@@ -93,7 +103,6 @@ function onChangeFilter(evt) {
       //render gallery
       isWatch = false;
       refs.empty.style.display = 'none';
-      renderApi.clearContent(refs.gallery);
       refs.preloaderElem.classList.toggle('is-hidden');
       refs.gallery.classList.remove('is-hidden');
       renderContent(queryQ);
@@ -116,6 +125,11 @@ function onChooseMovie(evt) {
   movie =
     queryQ.find(item => item.id === Number(evt.target.id)) ??
     queryW.find(item => item.id === Number(evt.target.id));
+  if (movie.youtubeId !== undefined) {
+    refs.play.style.display = 'block';
+  } else {
+    refs.play.style.display = 'none';
+  }
   renderModal.prepareModalContent(refs.modalElem, movie);
   renderModal.renderModalBtns(
     queryQ,
