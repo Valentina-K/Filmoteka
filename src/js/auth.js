@@ -6,13 +6,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import {
-  showLoginForm,
-  showLoginError,
-  btnLogin,
-  btnSignup,
-  btnLogout,
-} from './ui';
+import { showLoginError } from './ui';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDSRKxsxYbCcR81Ulc3SRbFUPHSxZQE-gM',

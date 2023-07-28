@@ -51,7 +51,6 @@ let queryQ = [];
 let queryW = [];
 window.addEventListener('load', getTrend);
 window.addEventListener('keydown', onEscKeyPress);
-
 pagination.on('beforeMove', event => {
   instanceAPI.setcurrentPage(event.page);
   prepareGallery();
@@ -106,11 +105,9 @@ function onLoginSubmit(evt) {
 }
 
 function onPlay() {
-  const player = new Plyr('#player', {});
   // Expose player so it can be used from the console
   refs.play.style.display = 'none';
   renderModal.prepareModalPreview(refs.modalElem, movie.youtubeId);
-  window.player = player;
 }
 function onAddOrRemove(evt) {
   if (auth.currentUser) {
@@ -164,13 +161,14 @@ function onAddOrRemove(evt) {
 
 function onClose() {
   toggleModal();
-  //renderModal(); - only from my library
+  renderModal.clearModal(refs.modalElem);
 }
 
 function onEscKeyPress(even) {
   if (even.code === 'Escape') {
     if (!refs.modal.classList.contains('is-hidden')) {
       toggleModal();
+      renderModal.clearModal(refs.modalElem);
     }
   }
 }
